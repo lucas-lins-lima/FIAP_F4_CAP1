@@ -26,9 +26,138 @@
 
 ## 📜 Descrição
 
-*Descreva seu projeto com base no texto do PBL (até 600 palavras)*
+A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológicas para agricultura digital. Este projeto desenvolve um sistema completo de monitoramento e gestão agrícola, evoluindo através de 4 fases distintas.
 
+## 🎯 Objetivos por Fase
 
+### **FASE 1** ✅ - Sistema de Cálculos Agrícolas
+- ✅ Aplicação Python para 4 tipos de culturas
+- ✅ Cálculo de áreas geométricas específicas
+- ✅ Gestão de insumos e manejo
+- ✅ Sistema de menu interativo
+- ✅ Análise estatística em R
+
+### **FASE 2** ✅ - Modelagem de Banco de Dados
+- ✅ Modelagem MER/DER
+- ✅ Sistema de sensores (pH, umidade, NPK)
+- ✅ SQL Developer Data Modeler
+
+### **FASE 3** ✅ - Sistema IoT com ESP32
+- ✅ Simulação Wokwi
+- ✅ Sensores integrados
+- ✅ Controle de irrigação
+- ✅ Banco de dados com CRUD
+
+### **FASE 4** ✅ - Machine Learning e Dashboard
+- ✅ Integração Scikit-learn
+- ✅ Dashboard Streamlit
+- ✅ Otimizações ESP32
+- ✅ Sistema preditivo
+
+## 🌱 Culturas Suportadas
+
+| Cultura | Geometria | Insumo Principal | Dosagem |
+|---------|-----------|------------------|---------|
+| 🌿 **Soja** | Retangular | Glifosato | 3L/hectare |
+| 🌽 **Milho** | Circular (Pivô) | Ureia | 200kg/hectare |
+| ☕ **Café** | Trapezoidal | Fosfato | 150kg/hectare |
+| 🎋 **Cana-de-açúcar** | Triangular | NPK Líquido | 500mL/metro |
+
+## 📁 Estrutura do Projeto
+```
+│   .gitattributes
+│   .gitignore
+│   README.md
+│   
+├───.github
+│   └───workflows
+│           ci.yml
+│
+├───assets
+│   │   logo-fiap.png
+│   │
+│   ├───diagrams
+│   └───images
+│       ├───dashboard-screenshots
+│       ├───serial-plotter
+│       └───system-demo
+├───config
+│       database.py
+│       readme.md
+│       settings.py
+│
+├───document
+│   │   fase1-requirements.md
+│   │   fase2-database-design.md
+│   │   fase3-hardware-system.md
+│   │   fase4-ml-dashboard.md
+│   │
+│   └───other
+│           readme.md
+│
+├───scripts
+│   ├───database
+│   │       backup_scripts.py
+│   │       create_tables.sql
+│   │       seed_data.sql
+│   │
+│   └───deployment
+│           requirements.txt
+│           setup.py
+│
+└───src
+    ├───fase1
+    │   │   agriculture_calculator.py
+    │   │   analysis.R
+    │   │   data_for_r.csv
+    │   │   data_manager.py
+    │   │   farmtech_data.json
+    │   │   main.py
+    │   │
+    │   └───__pycache__
+    │           agriculture_calculator.cpython-311.pyc
+    │           data_manager.cpython-311.pyc
+    │
+    ├───fase2
+    │       database_schema.sql
+    │       farmtech_model.dmd
+    │       mer_documentation.md
+    │
+    ├───fase3
+    │   ├───esp32
+    │   │       main.cpp
+    │   │       platformio.ini
+    │   │       sensors.h
+    │   │
+    │   ├───python
+    │   │       crud_operations.py
+    │   │       database_manager.py
+    │   │       data_analysis.py
+    │   │       serial_reader.py
+    │   │
+    │   └───wokwi
+    │           circuit.json
+    │
+    └───fase4
+        ├───dashboard
+        │   │   streamlit_app.py
+        │   │
+        │   ├───components
+        │   └───static
+        ├───esp32_optimized
+        │       lcd_display.h
+        │       main_optimized.cpp
+        │       memory_optimization.md
+        │
+        ├───integration
+        │       api_connections.py
+        │       database_enhanced.py
+        │
+        └───machine_learning
+                data_preprocessing.py
+                irrigation_predictor.py
+                model_training.py
+```
 ## 📁 Estrutura de pastas
 
 Dentre os arquivos e pastas presentes na raiz do projeto, definem-se:
@@ -49,8 +178,77 @@ Dentre os arquivos e pastas presentes na raiz do projeto, definem-se:
 
 ## 🔧 Como executar o código
 
-*Acrescentar as informações necessárias sobre pré-requisitos (IDEs, serviços, bibliotecas etc.) e instalação básica do projeto, descrevendo eventuais versões utilizadas. Colocar um passo a passo de como o leitor pode baixar o seu código e executá-lo a partir de sua máquina ou seu repositório. Considere a explicação organizada em fase.*
+### **Pré-requisitos**
+```
+bash
+# Python 3.8+
+pip install -r scripts/deployment/requirements.txt
+```
+# Bibliotecas específicas
+pip install sqlite3 pandas matplotlib seaborn pyserial
 
+### Fase 1 - Sistema Python
+```
+bash
+cd src/fase1
+python main.py
+```
+### Fase 1 - Sistema R
+```
+cd src/fase1
+Rscript analysis.R
+```
+### Fase 2 - Banco de Dados
+```
+cd src/fase2
+# Executar scripts SQL no MySQL/SQLite
+sqlite3 farmtech.db < database_schema.sql
+```
+### Fase 3 - Sistema IoT
+
+1. Simulação no Wokwi (manual)
+- Acesse wokwi.com
+- Crie novo projeto ESP32
+- Importe o circuito: src/fase3/wokwi/diagram.json
+- Cole o código: src/fase3/esp32/main.cpp
+- ▶️ Execute a simulação
+
+2. Simulação no Wokwi (automatica)
+- Acesso
+- ▶️ Execute a simulação
+
+3. Captura de Dados Python
+```
+cd src/fase3/python
+
+# Modo simulação (recomendado para testes)
+python serial_reader.py --simulate --duration 10
+
+# Modo real (requer porta serial)
+python serial_reader.py --port COM3 --baudrate 115200
+
+# Análise dos dados
+python data_analysis.py
+
+# Operações CRUD
+python crud_operations.py
+```
+4. Gerenciamento do Banco
+```
+cd src/fase3/python
+
+# Inicializar database
+python database_manager.py
+
+# Visualizar dados
+python -c "
+from database_manager import DatabaseManager
+db = DatabaseManager()
+print('📊 Últimas leituras:')
+for reading in db.get_latest_readings(5):
+    print(f'Umidade: {reading["umidade"]}%, pH: {reading["ph"]}')
+"
+```
 
 ## 🗃 Histórico de lançamentos
 
