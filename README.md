@@ -7,6 +7,7 @@
 <br>
 
 # Nome do projeto
+FarmTech Solutions - Agricultura Digital
 
 ## Nome do grupo
 
