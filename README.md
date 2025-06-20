@@ -249,14 +249,15 @@ streamlit run src/fase4/dashboard/streamlit_app.py
 ```
 - Carregar código ESP32
 
-     (Manualmente)
+- Manualmente:
   - Abrir src/fase4/esp32_optimized/main_optimized.cpp no Wokwi
   - Carregar src\fase4\wokwi\circuit_compatible.json
   - Execute a simulação
 
-    (Automatico)
+- Automatico:
   - Link: https://wokwi.com/projects/434240692467938305
   - Execute a simulação
+  
 ## 🗃 Histórico de lançamentos
 
 * 0.5.0 - XX/XX/2024
