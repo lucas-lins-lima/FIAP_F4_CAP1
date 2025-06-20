@@ -39,6 +39,8 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 - ✅ Sistema de sensores (pH, umidade, NPK)
 - ✅ SQL Developer Data Modeler
 
+Link do documento completo: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/blob/main/src/fase2/mer_documentation.md
+
 ### **FASE 3** ✅ - Sistema IoT com ESP32
 - ✅ Simulação Wokwi
 
@@ -48,6 +50,8 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 - ✅ Controle de irrigação
 - ✅ Banco de dados com CRUD
 
+Link do documento completo: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/blob/main/document/fase3-hardware-system.md
+
 ### **FASE 4** ✅ - Machine Learning e Dashboard
 - ✅ Integração Scikit-learn
 - ✅ Dashboard Streamlit
@@ -56,6 +60,9 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 ![Captura de tela 2025-06-19 224438](https://github.com/user-attachments/assets/2d4d22fe-8530-41e4-af2a-1605c85b9f0a)
 
 - ✅ Sistema preditivo
+
+Link do documento completo 1: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/blob/main/document/fase4-ml-dashboard.md
+Link do documento completo 2: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/blob/main/src/fase4/esp32_optimized/memory_optimization.md
 
 ## 🌱 Culturas Suportadas
 
