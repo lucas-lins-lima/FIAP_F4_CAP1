@@ -49,6 +49,23 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 - ✅ Controle de irrigação
 - ✅ Banco de dados com CRUD
 
+## 🔧 Componentes do Sistema (Fase 3)
+
+### Hardware Simulado (Wokwi)
+- **ESP32**: Microcontrolador principal
+- **DHT22**: Sensor de umidade do solo
+- **LDR**: Sensor de pH (simulado)
+- **Botões**: Sensores de fósforo e potássio
+- **Relé**: Controle da bomba de irrigação
+- **LED**: Indicador de status do sistema
+
+![Captura de tela 2025-06-19 212738](https://github.com/user-attachments/assets/d45f801d-e331-4718-bc21-03de060a751e)
+
+### Software
+- **C/C++**: Código do microcontrolador
+- **Python**: Banco de dados e análise
+- **SQLite**: Armazenamento local de dados
+
 ### **FASE 4** ✅ - Machine Learning e Dashboard
 - ✅ Integração Scikit-learn
 - ✅ Dashboard Streamlit
@@ -134,7 +151,6 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
     │   │       crud_operations.py
     │   │       database_manager.py
     │   │       data_analysis.py
-    │   │       serial_reader.py
     │   │
     │   └───wokwi
     │           circuit.json
@@ -186,7 +202,7 @@ bash
 pip install -r scripts/deployment/requirements.txt
 ```
 # Bibliotecas específicas
-pip install sqlite3 pandas matplotlib seaborn pyserial
+pip install sqlite3 pandas matplotlib seaborn pyserial numpy
 
 ### Fase 1 - Sistema Python
 ```
@@ -207,49 +223,25 @@ sqlite3 farmtech.db < database_schema.sql
 ```
 ### Fase 3 - Sistema IoT
 
-1. Simulação no Wokwi (manual)
-- Acesse wokwi.com
-- Crie novo projeto ESP32
-- Importe o circuito: src/fase3/wokwi/diagram.json
-- Cole o código: src/fase3/esp32/main.cpp
-- ▶️ Execute a simulação
+1.Simulação no Wokwi (manualmente):
+- Abra o arquivo src/fase3/wokwi/circuit.json no Wokwi
+- Carregue o código src/fase3/esp32/main.cpp
+- Execute a simulação
 
-2. Simulação no Wokwi (automatica)
-- Acesso
-- ▶️ Execute a simulação
+2. Simulação no Wokwi (automatico)
+- link: https://wokwi.com/projects/434236257248040961
+- Execute a simulação
 
-3. Captura de Dados Python
+3. Sistema CRUD
 ```
 cd src/fase3/python
-
-# Modo simulação (recomendado para testes)
-python serial_reader.py --simulate --duration 10
-
-# Modo real (requer porta serial)
-python serial_reader.py --port COM3 --baudrate 115200
-
-# Análise dos dados
-python data_analysis.py
-
-# Operações CRUD
 python crud_operations.py
 ```
-4. Gerenciamento do Banco
+4. Análise de Dados
 ```
-cd src/fase3/python
-
-# Inicializar database
-python database_manager.py
-
-# Visualizar dados
-python -c "
-from database_manager import DatabaseManager
-db = DatabaseManager()
-print('📊 Últimas leituras:')
-for reading in db.get_latest_readings(5):
-    print(f'Umidade: {reading["umidade"]}%, pH: {reading["ph"]}')
-"
+python data_analysis.py
 ```
+### Fase 4 - 
 
 ## 🗃 Histórico de lançamentos
 
