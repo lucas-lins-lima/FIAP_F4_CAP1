@@ -310,12 +310,12 @@ py -m streamlit run src/fase4/dashboard/streamlit_app.py
 ## 🗃 Histórico de lançamentos
 
 * 0.3.0 - 18/06/2025
-    * Atualização das fases 1 e 2
+    * Elaboração das fases 1 e 2
 * 0.2.0 - 19/06/2025
-    * Atualização da fase 3
-    * Conclussão da fase 4
+    * Elaboração da fase 3
+    * Conclussão da fase 1, 2 e 3
 * 0.1.0 - 20/06/2025
-    * Conclusão da atividade 4
+    * Elaboração e conclusão da atividade 4
 
 ## 📋 Licença
 
