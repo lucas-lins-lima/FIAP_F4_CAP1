@@ -100,8 +100,6 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 │
 ├───scripts
 │   ├───database
-│   │       backup_scripts.py
-│   │       create_tables.sql
 │   │       seed_data.sql
 │   │
 │   └───deployment
@@ -155,10 +153,13 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
         │       api_connections.py
         │       database_enhanced.py
         │
-        └───machine_learning
-                data_preprocessing.py
-                irrigation_predictor.py
-                model_training.py
+        ├───machine_learning
+        │       data_preprocessing.py
+        │       irrigation_predictor.py
+        │       model_training.py
+        │
+        └───wokwi
+                circuit_compatible.json
 ```
 ## 📁 Estrutura de pastas
 
@@ -254,16 +255,11 @@ streamlit run src/fase4/dashboard/streamlit_app.py
   
 ## 🗃 Histórico de lançamentos
 
-* 0.5.0 - XX/XX/2024
-    * 
-* 0.4.0 - XX/XX/2024
-    * 
-* 0.3.0 - XX/XX/2024
-    * 
-* 0.2.0 - XX/XX/2024
-    * 
-* 0.1.0 - XX/XX/2024
-    *
+* 0.2.0 - 18/06/2025
+    * Atualização das fases 1 e 2
+* 0.1.0 - 19/06/2025
+    * Atualização da fase 3
+    * Conclussão da fase 4
 
 ## 📋 Licença
 
