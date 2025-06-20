@@ -45,26 +45,10 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 
 ### **FASE 3** ✅ - Sistema IoT com ESP32
 - ✅ Simulação Wokwi
+![Captura de tela 2025-06-19 212738](https://github.com/user-attachments/assets/d45f801d-e331-4718-bc21-03de060a751e)
 - ✅ Sensores integrados
 - ✅ Controle de irrigação
 - ✅ Banco de dados com CRUD
-
-## 🔧 Componentes do Sistema (Fase 3)
-
-### Hardware Simulado (Wokwi)
-- **ESP32**: Microcontrolador principal
-- **DHT22**: Sensor de umidade do solo
-- **LDR**: Sensor de pH (simulado)
-- **Botões**: Sensores de fósforo e potássio
-- **Relé**: Controle da bomba de irrigação
-- **LED**: Indicador de status do sistema
-
-![Captura de tela 2025-06-19 212738](https://github.com/user-attachments/assets/d45f801d-e331-4718-bc21-03de060a751e)
-
-### Software
-- **C/C++**: Código do microcontrolador
-- **Python**: Banco de dados e análise
-- **SQLite**: Armazenamento local de dados
 
 ### **FASE 4** ✅ - Machine Learning e Dashboard
 - ✅ Integração Scikit-learn
@@ -241,7 +225,26 @@ python crud_operations.py
 ```
 python data_analysis.py
 ```
-### Fase 4 - 
+### Fase 4 - Machine Learning e Dashboard
+
+1. Setup Automático 
+```
+cd farmtech-solutions
+python scripts/deployment/setup.py
+```
+2. Configuração Manual
+- Configurar .env
+```
+OPENWEATHER_API_KEY=sua_chave_aqui
+DB_PATH=data/farmtech_production.db
+```
+- Executar Dashboard
+```
+streamlit run src/fase4/dashboard/streamlit_app.py
+```
+- Carregar código ESP32
+  - Abrir src/fase4/esp32_optimized/main_optimized.cpp no Wokwi
+  - Carregar src/fase3/wokwi/circuit.json (compatível)
 
 ## 🗃 Histórico de lançamentos
 
