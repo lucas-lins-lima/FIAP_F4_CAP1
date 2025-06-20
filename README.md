@@ -248,6 +248,7 @@ DB_PATH=data/farmtech_production.db
 streamlit run src/fase4/dashboard/streamlit_app.py
 ```
 - Carregar código ESP32
+
     (Manualmente)
   - Abrir src/fase4/esp32_optimized/main_optimized.cpp no Wokwi
   - Carregar src\fase4\wokwi\circuit_compatible.json
