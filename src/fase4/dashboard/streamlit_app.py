@@ -8,7 +8,8 @@ import sqlite3
 from datetime import datetime, timedelta
 import sys
 import os
-import joblib
+import warnings
+warnings.filterwarnings('ignore')
 
 # Configurar página
 st.set_page_config(
@@ -20,63 +21,184 @@ st.set_page_config(
 
 # Adicionar caminhos para imports
 sys.path.append(os.path.join(os.path.dirname(__file__), '../machine_learning'))
+sys.path.append(os.path.join(os.path.dirname(__file__), '../integration'))
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../fase3/python'))
-
-try:
-    from irrigation_predictor import IrrigationPredictor
-    from database_manager import FarmTechDatabase
-except ImportError:
-    st.error("⚠️ Módulos não encontrados. Certifique-se de que todos os arquivos estão no lugar correto.")
-    st.stop()
 
 class FarmTechDashboard:
     def __init__(self):
-        self.db = FarmTechDatabase()
-        self.predictor = IrrigationPredictor()
+        self.db = None
+        self.predictor = None
+        self.init_database()
+        self.init_ml_model()
         
-        # Tentar carregar modelo treinado
+    def init_database(self):
+        """Inicializa conexão com banco de dados"""
         try:
-            self.predictor.load_model('farmtech_irrigation_model.pkl')
-        except:
-            st.warning("⚠️ Modelo ML não encontrado. Treinando novo modelo...")
-            self.predictor.train_model()
-            self.predictor.save_model()
+            from database_enhanced import EnhancedFarmTechDatabase
+            self.db = EnhancedFarmTechDatabase()
+        except ImportError:
+            try:
+                from database_manager import FarmTechDatabase
+                self.db = FarmTechDatabase()
+            except ImportError:
+                st.warning("⚠️ Usando dados mock (banco de dados não disponível)")
+                self.db = None
+    
+    def init_ml_model(self):
+        """Inicializa modelo de ML (opcional)"""
+        try:
+            from irrigation_predictor import IrrigationPredictor
+            self.predictor = IrrigationPredictor()
+            
+            # Tentar carregar modelo existente
+            model_path = 'farmtech_irrigation_model.pkl'
+            if os.path.exists(model_path):
+                self.predictor.load_model(model_path)
+            else:
+                # Treinar modelo básico se não existir
+                with st.spinner("🤖 Treinando modelo de ML pela primeira vez..."):
+                    self.predictor.train_model()
+                    self.predictor.save_model(model_path)
+                st.success("✅ Modelo ML treinado com sucesso!")
+                
+        except Exception as e:
+            st.info(f"ℹ️ ML não disponível: Usando sistema básico")
+            self.predictor = None
+    
+    def safe_convert_data(self, df):
+        """Converte dados para tipos seguros para JSON"""
+        if df.empty:
+            return df
+        
+        # Fazer cópia para não modificar original
+        safe_df = df.copy()
+        
+        # Converter timestamp para string se necessário
+        if 'timestamp' in safe_df.columns:
+            safe_df['timestamp'] = pd.to_datetime(safe_df['timestamp'], errors='coerce')
+            safe_df = safe_df.dropna(subset=['timestamp'])
+        
+        # Converter colunas numéricas para float básico
+        numeric_columns = ['humidity', 'ph_level']
+        for col in numeric_columns:
+            if col in safe_df.columns:
+                safe_df[col] = pd.to_numeric(safe_df[col], errors='coerce')
+                safe_df[col] = safe_df[col].fillna(0).astype(float)
+        
+        # Converter colunas boolean para int
+        bool_columns = ['phosphorus', 'potassium', 'pump_status']
+        for col in bool_columns:
+            if col in safe_df.columns:
+                safe_df[col] = safe_df[col].astype(bool).astype(int)
+        
+        # Remover linhas com valores inválidos
+        safe_df = safe_df.replace([np.inf, -np.inf], np.nan).dropna()
+        
+        return safe_df
     
     def load_data(self):
         """Carrega dados do banco de dados"""
-        data = self.db.get_sensor_data(limit=500)
-        if not data:
-            # Gerar dados de exemplo se não houver dados
-            self.generate_sample_data()
-            data = self.db.get_sensor_data(limit=500)
-        
-        df = pd.DataFrame(data)
-        df['timestamp'] = pd.to_datetime(df['timestamp'])
-        return df
+        if not self.db:
+            return self.create_mock_data()
+            
+        try:
+            if hasattr(self.db, 'get_sensor_data'):
+                data = self.db.get_sensor_data(limit=500)
+            else:
+                data = []
+                
+            if not data:
+                # Gerar dados de exemplo se não houver dados
+                self.generate_sample_data()
+                if hasattr(self.db, 'get_sensor_data'):
+                    data = self.db.get_sensor_data(limit=500)
+            
+            if data:
+                df = pd.DataFrame(data)
+                return self.safe_convert_data(df)
+            else:
+                return self.create_mock_data()
+                
+        except Exception as e:
+            st.warning(f"⚠️ Erro ao carregar dados do banco: {str(e)}")
+            return self.create_mock_data()
     
-    def generate_sample_data(self, n_samples=200):
-        """Gera dados de exemplo para demonstração"""
+    def create_mock_data(self):
+        """Cria dados mock seguros para demonstração"""
         np.random.seed(42)
-        base_time = datetime.now() - timedelta(hours=48)
         
-        for i in range(n_samples):
-            timestamp = base_time + timedelta(minutes=i*15)
+        # Criar 100 pontos de dados nas últimas 48 horas
+        num_points = 100
+        end_time = datetime.now()
+        start_time = end_time - timedelta(hours=48)
+        
+        # Criar timestamps
+        timestamps = pd.date_range(start=start_time, end=end_time, periods=num_points)
+        
+        # Gerar dados realistas
+        data = []
+        for i, timestamp in enumerate(timestamps):
             hour = timestamp.hour
             
-            # Simular padrões realistas
-            humidity = max(15, min(85, 40 + 15 * np.sin(2 * np.pi * hour / 24) + np.random.normal(0, 8)))
-            ph = max(4.5, min(8.5, np.random.normal(6.7, 0.6)))
-            phosphorus = np.random.choice([True, False], p=[0.7, 0.3])
-            potassium = np.random.choice([True, False], p=[0.75, 0.25])
+            # Padrão de umidade baseado na hora (mais baixa durante o dia)
+            base_humidity = 45 + 10 * np.sin(2 * np.pi * (hour - 6) / 24)
+            humidity = float(np.clip(base_humidity + np.random.normal(0, 8), 10, 90))
+            
+            # pH com variação pequena
+            ph_level = float(np.clip(6.8 + np.random.normal(0, 0.6), 4.5, 8.5))
+            
+            # Nutrientes com probabilidade
+            phosphorus = int(np.random.random() > 0.3)
+            potassium = int(np.random.random() > 0.25)
             
             # Lógica de irrigação
-            pump_active = (humidity < 35) or (ph < 6.0 or ph > 7.5) or (not phosphorus or not potassium)
+            pump_status = int((humidity < 35) or (ph_level < 6.0) or (ph_level > 7.5) or (phosphorus == 0) or (potassium == 0))
             
-            self.db.insert_sensor_data(humidity, ph, phosphorus, potassium, pump_active)
+            data.append({
+                'id': i + 1,
+                'timestamp': timestamp,
+                'humidity': humidity,
+                'ph_level': ph_level,
+                'phosphorus': phosphorus,
+                'potassium': potassium,
+                'pump_status': pump_status
+            })
+        
+        df = pd.DataFrame(data)
+        return self.safe_convert_data(df)
+    
+    def generate_sample_data(self, n_samples=50):
+        """Gera dados de exemplo para o banco"""
+        if not self.db:
+            return
+            
+        try:
+            base_time = datetime.now() - timedelta(hours=24)
+            
+            for i in range(n_samples):
+                timestamp = base_time + timedelta(minutes=i*30)
+                hour = timestamp.hour
+                
+                # Simular padrões realistas
+                humidity = max(15, min(85, 40 + 15 * np.sin(2 * np.pi * hour / 24) + np.random.normal(0, 8)))
+                ph = max(4.5, min(8.5, np.random.normal(6.7, 0.6)))
+                phosphorus = np.random.choice([True, False], p=[0.7, 0.3])
+                potassium = np.random.choice([True, False], p=[0.75, 0.25])
+                
+                pump_active = (humidity < 35) or (ph < 6.0 or ph > 7.5) or (not phosphorus or not potassium)
+                
+                if hasattr(self.db, 'insert_enhanced_sensor_data'):
+                    self.db.insert_enhanced_sensor_data(humidity, ph, phosphorus, potassium, pump_active)
+                elif hasattr(self.db, 'insert_sensor_data'):
+                    self.db.insert_sensor_data(humidity, ph, phosphorus, potassium, pump_active)
+                    
+        except Exception as e:
+            st.warning(f"⚠️ Erro ao gerar dados: {e}")
     
     def create_realtime_metrics(self, df):
         """Cria métricas em tempo real"""
         if df.empty:
+            st.error("📭 Nenhum dado disponível")
             return
         
         latest = df.iloc[-1]
@@ -84,19 +206,25 @@ class FarmTechDashboard:
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            delta_humidity = df['humidity'].iloc[-1] - df['humidity'].iloc[-2] if len(df) > 1 else 0
+            delta_humidity = None
+            if len(df) > 1:
+                delta_humidity = float(latest['humidity'] - df.iloc[-2]['humidity'])
+            
             st.metric(
                 label="💧 Umidade do Solo",
                 value=f"{latest['humidity']:.1f}%",
-                delta=f"{delta_humidity:.1f}%"
+                delta=f"{delta_humidity:.1f}%" if delta_humidity is not None else None
             )
         
         with col2:
-            delta_ph = df['ph_level'].iloc[-1] - df['ph_level'].iloc[-2] if len(df) > 1 else 0
+            delta_ph = None
+            if len(df) > 1:
+                delta_ph = float(latest['ph_level'] - df.iloc[-2]['ph_level'])
+            
             st.metric(
                 label="🧪 Nível de pH",
                 value=f"{latest['ph_level']:.2f}",
-                delta=f"{delta_ph:.2f}"
+                delta=f"{delta_ph:.2f}" if delta_ph is not None else None
             )
         
         with col3:
@@ -113,215 +241,165 @@ class FarmTechDashboard:
                 value=pump_status
             )
     
-    def create_time_series_chart(self, df):
-        """Cria gráfico de séries temporais"""
-        fig = make_subplots(
-            rows=3, cols=1,
-            subplot_titles=('Umidade do Solo (%)', 'Nível de pH', 'Status da Bomba'),
-            vertical_spacing=0.08,
-            shared_xaxes=True
-        )
-        
-        # Umidade
-        fig.add_trace(
-            go.Scatter(
-                x=df['timestamp'],
-                y=df['humidity'],
-                mode='lines+markers',
-                name='Umidade',
-                line=dict(color='#1f77b4', width=2),
-                marker=dict(size=4)
-            ),
-            row=1, col=1
-        )
-        
-        # Linha de referência para umidade crítica
-        fig.add_hline(y=30, line_dash="dash", line_color="red", 
-                     annotation_text="Crítico", row=1, col=1)
-        
-        # pH
-        fig.add_trace(
-            go.Scatter(
-                x=df['timestamp'],
-                y=df['ph_level'],
-                mode='lines+markers',
-                name='pH',
-                line=dict(color='#ff7f0e', width=2),
-                marker=dict(size=4)
-            ),
-            row=2, col=1
-        )
-        
-        # Faixa ideal de pH
-        fig.add_hrect(y0=6.0, y1=7.5, fillcolor="green", opacity=0.2,
-                     annotation_text="Faixa Ideal", row=2, col=1)
-        
-        # Status da bomba
-        fig.add_trace(
-            go.Scatter(
-                x=df['timestamp'],
-                y=df['pump_status'],
-                mode='lines+markers',
-                name='Bomba',
-                line=dict(color='#d62728', width=3),
-                marker=dict(size=6)
-            ),
-            row=3, col=1
-        )
-        
-        fig.update_layout(
-            height=600,
-            title_text="📊 Monitoramento em Tempo Real - Últimas 48h",
-            showlegend=False
-        )
-        
-        fig.update_xaxes(title_text="Horário", row=3, col=1)
-        
-        return fig
-    
-    def create_correlation_heatmap(self, df):
-        """Cria mapa de calor de correlações"""
-        corr_data = df[['humidity', 'ph_level', 'phosphorus', 'potassium', 'pump_status']].corr()
-        
-        fig = px.imshow(
-            corr_data,
-            title="🔥 Matriz de Correlação dos Sensores",
-            color_continuous_scale="RdBu_r",
-            aspect="auto",
-            text_auto=True
-        )
-        
-        fig.update_layout(height=400)
-        return fig
-    
-    def create_nutrient_analysis(self, df):
-        """Análise de nutrientes"""
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            # Gráfico de pizza para fósforo
-            phosphorus_counts = df['phosphorus'].value_counts()
-            fig_p = px.pie(
-                values=phosphorus_counts.values,
-                names=['Presente' if x else 'Ausente' for x in phosphorus_counts.index],
-                title="🟡 Disponibilidade de Fósforo (P)",
-                color_discrete_map={'Presente': '#2ecc71', 'Ausente': '#e74c3c'}
-            )
-            st.plotly_chart(fig_p, use_container_width=True)
-        
-        with col2:
-            # Gráfico de pizza para potássio
-            potassium_counts = df['potassium'].value_counts()
-            fig_k = px.pie(
-                values=potassium_counts.values,
-                names=['Presente' if x else 'Ausente' for x in potassium_counts.index],
-                title="🔵 Disponibilidade de Potássio (K)",
-                color_discrete_map={'Presente': '#3498db', 'Ausente': '#e67e22'}
-            )
-            st.plotly_chart(fig_k, use_container_width=True)
-    
-    def create_irrigation_efficiency_chart(self, df):
-        """Análise de eficiência da irrigação"""
-        # Calcular eficiência por hora
-        df['hour'] = df['timestamp'].dt.hour
-        hourly_stats = df.groupby('hour').agg({
-            'pump_status': ['sum', 'count'],
-            'humidity': 'mean'
-        }).round(2)
-        
-        hourly_stats.columns = ['irrigation_count', 'total_readings', 'avg_humidity']
-        hourly_stats['irrigation_rate'] = (hourly_stats['irrigation_count'] / hourly_stats['total_readings'] * 100).round(1)
-        hourly_stats = hourly_stats.reset_index()
-        
-        fig = make_subplots(
-            rows=2, cols=1,
-            subplot_titles=('Taxa de Irrigação por Hora (%)', 'Umidade Média por Hora'),
-            vertical_spacing=0.15
-        )
-        
-        # Taxa de irrigação
-        fig.add_trace(
-            go.Bar(
-                x=hourly_stats['hour'],
-                y=hourly_stats['irrigation_rate'],
-                name='Taxa de Irrigação',
-                marker_color='lightblue'
-            ),
-            row=1, col=1
-        )
-        
-        # Umidade média
-        fig.add_trace(
-            go.Scatter(
-                x=hourly_stats['hour'],
-                y=hourly_stats['avg_humidity'],
-                mode='lines+markers',
-                name='Umidade Média',
-                line=dict(color='green', width=3)
-            ),
-            row=2, col=1
-        )
-        
-        fig.update_layout(
-            height=500,
-            title_text="⚡ Análise de Eficiência da Irrigação",
-            showlegend=False
-        )
-        
-        fig.update_xaxes(title_text="Hora do Dia", row=2, col=1)
-        
-        return fig
+    def create_safe_charts(self, df):
+        """Cria gráficos seguros usando plotly express"""
+        if df.empty:
+            st.warning("📭 Sem dados para gráficos")
+            return
+            
+        try:
+            # Preparar dados seguros
+            chart_data = df.copy()
+            
+            # Converter timestamp para string para evitar problemas de serialização
+            chart_data['time_str'] = chart_data['timestamp'].dt.strftime('%H:%M')
+            chart_data['date_str'] = chart_data['timestamp'].dt.strftime('%m-%d %H:%M')
+            
+            # Limitar dados para performance
+            if len(chart_data) > 50:
+                chart_data = chart_data.tail(50)
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.subheader("💧 Umidade do Solo")
+                fig_humidity = px.line(
+                    chart_data, 
+                    x='date_str', 
+                    y='humidity',
+                    title="Variação da Umidade (%)",
+                    labels={'humidity': 'Umidade (%)', 'date_str': 'Data/Hora'}
+                )
+                fig_humidity.add_hline(y=30, line_dash="dash", line_color="red", 
+                                     annotation_text="Crítico")
+                fig_humidity.add_hline(y=70, line_dash="dash", line_color="green", 
+                                     annotation_text="Ideal")
+                fig_humidity.update_xaxes(tickangle=45)
+                st.plotly_chart(fig_humidity, use_container_width=True)
+            
+            with col2:
+                st.subheader("🧪 Nível de pH")
+                fig_ph = px.line(
+                    chart_data, 
+                    x='date_str', 
+                    y='ph_level',
+                    title="Variação do pH",
+                    labels={'ph_level': 'pH', 'date_str': 'Data/Hora'}
+                )
+                fig_ph.add_hrect(y0=6.0, y1=7.5, fillcolor="green", opacity=0.2,
+                               annotation_text="Faixa Ideal")
+                fig_ph.update_xaxes(tickangle=45)
+                st.plotly_chart(fig_ph, use_container_width=True)
+            
+            # Gráfico de barras para nutrientes
+            col3, col4 = st.columns(2)
+            
+            with col3:
+                st.subheader("🌱 Status dos Nutrientes")
+                
+                # Calcular percentuais
+                phosphorus_pct = (chart_data['phosphorus'].sum() / len(chart_data)) * 100
+                potassium_pct = (chart_data['potassium'].sum() / len(chart_data)) * 100
+                
+                nutrient_data = pd.DataFrame({
+                    'Nutriente': ['Fósforo (P)', 'Potássio (K)'],
+                    'Disponibilidade (%)': [phosphorus_pct, potassium_pct]
+                })
+                
+                fig_nutrients = px.bar(
+                    nutrient_data, 
+                    x='Nutriente', 
+                    y='Disponibilidade (%)',
+                    title="Disponibilidade de Nutrientes",
+                    color='Disponibilidade (%)',
+                    color_continuous_scale='RdYlGn'
+                )
+                st.plotly_chart(fig_nutrients, use_container_width=True)
+            
+            with col4:
+                st.subheader("💦 Atividade da Bomba")
+                
+                # Status da bomba nas últimas leituras
+                pump_activity = chart_data['pump_status'].value_counts()
+                pump_labels = ['Inativa', 'Ativa']
+                pump_values = [pump_activity.get(0, 0), pump_activity.get(1, 0)]
+                
+                fig_pump = px.pie(
+                    values=pump_values,
+                    names=pump_labels,
+                    title="Status da Bomba",
+                    color_discrete_map={'Ativa': '#ff4444', 'Inativa': '#44ff44'}
+                )
+                st.plotly_chart(fig_pump, use_container_width=True)
+                
+        except Exception as e:
+            st.error(f"❌ Erro ao criar gráficos: {e}")
+            st.info("💡 Usando visualização alternativa...")
+            
+            # Fallback: mostrar dados em tabela
+            st.subheader("📊 Dados Recentes")
+            display_df = df.tail(10).copy()
+            display_df['timestamp'] = display_df['timestamp'].dt.strftime('%H:%M:%S')
+            st.dataframe(display_df)
     
     def create_ml_predictions_section(self, df):
         """Seção de predições com Machine Learning"""
-        st.header("🤖 Predições com Machine Learning")
-        
-        if df.empty:
-            st.warning("Sem dados para predição")
+        if not self.predictor:
+            st.info("🤖 Machine Learning não disponível. Execute: `py train_ml_model.py`")
             return
         
-        latest = df.iloc[-1]
+        if df.empty:
+            st.warning("📭 Sem dados para predição")
+            return
         
-        col1, col2 = st.columns([1, 1])
+        st.header("🤖 Predições com Machine Learning")
         
-        with col1:
-            st.subheader("🔮 Predição Atual")
+        try:
+            latest = df.iloc[-1]
             
-            # Predição atual
-            prediction = self.predictor.predict_irrigation(
-                humidity=latest['humidity'],
-                ph_level=latest['ph_level'],
-                phosphorus=latest['phosphorus'],
-                potassium=latest['potassium']
-            )
+            col1, col2 = st.columns([1, 1])
             
-            if prediction['irrigation_needed']:
-                st.error(f"🚨 IRRIGAÇÃO RECOMENDADA (Confiança: {prediction['confidence']:.1%})")
-            else:
-                st.success(f"✅ IRRIGAÇÃO NÃO NECESSÁRIA (Confiança: {prediction['confidence']:.1%})")
+            with col1:
+                st.subheader("🔮 Predição Atual")
+                
+                prediction = self.predictor.predict_irrigation(
+                    humidity=float(latest['humidity']),
+                    ph_level=float(latest['ph_level']),
+                    phosphorus=bool(latest['phosphorus']),
+                    potassium=bool(latest['potassium'])
+                )
+                
+                if prediction['irrigation_needed']:
+                    st.error(f"🚨 IRRIGAÇÃO RECOMENDADA")
+                    st.write(f"**Confiança:** {prediction['confidence']:.1%}")
+                else:
+                    st.success(f"✅ IRRIGAÇÃO NÃO NECESSÁRIA")
+                    st.write(f"**Confiança:** {prediction['confidence']:.1%}")
+                
+                # Mostrar probabilidades
+                st.write("**Probabilidades:**")
+                st.write(f"- Não irrigar: {prediction['probability_no']:.1%}")
+                st.write(f"- Irrigar: {prediction['probability_yes']:.1%}")
             
-            # Mostrar probabilidades
-            st.write("**Probabilidades:**")
-            st.write(f"- Não irrigar: {prediction['probability_no']:.1%}")
-            st.write(f"- Irrigar: {prediction['probability_yes']:.1%}")
-        
-        with col2:
-            st.subheader("⏰ Predições Futuras")
-            
-            # Predições para próximas horas
-            future_predictions = self.predictor.predict_next_hours(
-                current_humidity=latest['humidity'],
-                current_ph=latest['ph_level'],
-                current_phosphorus=latest['phosphorus'],
-                current_potassium=latest['potassium'],
-                hours_ahead=6
-            )
-            
-            for pred in future_predictions:
-                hour = (datetime.now().hour + pred['hour_offset']) % 24
-                status = "🔴 IRRIGAR" if pred['irrigation_needed'] else "🟢 OK"
-                st.write(f"**{pred['hour_offset']}h ({hour:02d}:00)**: {status} "
-                        f"(Conf: {pred['confidence']:.1%})")
+            with col2:
+                st.subheader("⏰ Predições Futuras")
+                
+                future_predictions = self.predictor.predict_next_hours(
+                    current_humidity=float(latest['humidity']),
+                    current_ph=float(latest['ph_level']),
+                    current_phosphorus=bool(latest['phosphorus']),
+                    current_potassium=bool(latest['potassium']),
+                    hours_ahead=6
+                )
+                
+                for pred in future_predictions:
+                    hour = (datetime.now().hour + pred['hour_offset']) % 24
+                    status = "🔴 IRRIGAR" if pred['irrigation_needed'] else "🟢 OK"
+                    st.write(f"**Em {pred['hour_offset']}h ({hour:02d}:00)**: {status} "
+                            f"(Conf: {pred['confidence']:.1%})")
+                    
+        except Exception as e:
+            st.error(f"❌ Erro nas predições de ML: {e}")
     
     def create_system_alerts(self, df):
         """Sistema de alertas"""
@@ -346,43 +424,12 @@ class FarmTechDashboard:
         if not latest['potassium']:
             alerts.append("🔵 NUTRIENTE: Potássio insuficiente")
         
-        # Verificar tendências
-        if len(df) >= 5:
-            recent_humidity = df['humidity'].tail(5)
-            if recent_humidity.is_monotonic_decreasing:
-                alerts.append("📉 TENDÊNCIA: Umidade em queda constante")
-        
         if alerts:
             st.error("🚨 **ALERTAS DO SISTEMA**")
             for alert in alerts:
                 st.write(f"- {alert}")
         else:
             st.success("✅ **Sistema funcionando normalmente**")
-    
-    def create_data_export_section(self, df):
-        """Seção para exportar dados"""
-        st.subheader("💾 Exportar Dados")
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            if st.button("📊 Exportar CSV"):
-                csv = df.to_csv(index=False)
-                st.download_button(
-                    label="⬇️ Download CSV",
-                    data=csv,
-                    file_name=f"farmtech_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                    mime="text/csv"
-                )
-        
-        with col2:
-            if st.button("📈 Relatório Estatístico"):
-                stats = df.describe()
-                st.dataframe(stats)
-        
-        with col3:
-            if st.button("🔄 Atualizar Dados"):
-                st.rerun()
     
     def main(self):
         """Função principal do dashboard"""
@@ -395,30 +442,29 @@ class FarmTechDashboard:
         st.sidebar.markdown("### 📊 Controles do Dashboard")
         
         # Controles da sidebar
-        auto_refresh = st.sidebar.checkbox("🔄 Atualização Automática", value=False)
         show_raw_data = st.sidebar.checkbox("📋 Mostrar Dados Brutos", value=False)
+        auto_refresh = st.sidebar.checkbox("🔄 Atualização Automática", value=False)
         
-        # Período de dados
-        data_period = st.sidebar.selectbox(
-            "📅 Período dos Dados",
-            ["Últimas 6 horas", "Últimas 24 horas", "Últimos 3 dias", "Todos os dados"]
-        )
+        if auto_refresh:
+            st.sidebar.info("🔄 Página será atualizada automaticamente")
+            
+        # Botão de atualização manual
+        if st.sidebar.button("🔄 Atualizar Dados"):
+            st.rerun()
         
         # Carregar dados
-        df = self.load_data()
-        
-        # Filtrar por período
-        now = datetime.now()
-        if data_period == "Últimas 6 horas":
-            df = df[df['timestamp'] >= now - timedelta(hours=6)]
-        elif data_period == "Últimas 24 horas":
-            df = df[df['timestamp'] >= now - timedelta(hours=24)]
-        elif data_period == "Últimos 3 dias":
-            df = df[df['timestamp'] >= now - timedelta(days=3)]
+        with st.spinner("📊 Carregando dados..."):
+            df = self.load_data()
         
         if df.empty:
-            st.error("❌ Nenhum dado encontrado para o período selecionado!")
+            st.error("❌ Nenhum dado encontrado!")
+            st.info("💡 Verifique se o banco de dados está configurado corretamente.")
             return
+        
+        # Mostrar informações básicas
+        st.sidebar.markdown("### 📊 Informações dos Dados")
+        st.sidebar.write(f"**Total de registros:** {len(df)}")
+        st.sidebar.write(f"**Período:** {df['timestamp'].min().strftime('%d/%m %H:%M')} - {df['timestamp'].max().strftime('%d/%m %H:%M')}")
         
         # Métricas em tempo real
         st.header("📊 Métricas em Tempo Real")
@@ -430,41 +476,33 @@ class FarmTechDashboard:
         
         # Gráficos principais
         st.header("📈 Análise Temporal")
-        fig_time = self.create_time_series_chart(df)
-        st.plotly_chart(fig_time, use_container_width=True)
-        
-        # Análise de correlação
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            fig_corr = self.create_correlation_heatmap(df)
-            st.plotly_chart(fig_corr, use_container_width=True)
-        
-        with col2:
-            fig_efficiency = self.create_irrigation_efficiency_chart(df)
-            st.plotly_chart(fig_efficiency, use_container_width=True)
-        
-        # Análise de nutrientes
-        st.header("🌱 Análise de Nutrientes")
-        self.create_nutrient_analysis(df)
+        self.create_safe_charts(df)
         
         # Machine Learning
-        self.create_ml_predictions_section(df)
+        if self.predictor:
+            self.create_ml_predictions_section(df)
         
         # Dados brutos
         if show_raw_data:
             st.header("📋 Dados Brutos")
-            st.dataframe(df)
-        
-        # Exportar dados
-        self.create_data_export_section(df)
+            display_df = df.copy()
+            display_df['timestamp'] = display_df['timestamp'].dt.strftime('%d/%m/%Y %H:%M:%S')
+            st.dataframe(display_df)
         
         # Footer
         st.markdown("---")
-        st.markdown("**FarmTech Solutions v4.0** - Desenvolvido para FIAP | Sistema de Agricultura Digital")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown("**FarmTech Solutions v4.0**")
+        with col2:
+            st.markdown("Desenvolvido para FIAP")
+        with col3:
+            st.markdown("Sistema de Agricultura Digital")
         
         # Auto refresh
         if auto_refresh:
+            import time
+            time.sleep(10)
             st.rerun()
 
 # Executar aplicação

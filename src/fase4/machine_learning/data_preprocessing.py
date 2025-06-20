@@ -105,9 +105,9 @@ class DataPreprocessor:
             
             # Períodos do dia
             df['period'] = pd.cut(df['hour'], 
-                                bins=[0, 6, 12, 18, 24],
-                                labels=['noite', 'manha', 'tarde', 'noite'],
-                                include_lowest=True)
+                    bins=[0, 6, 12, 18, 24],
+                    labels=['noite', 'manha', 'tarde', 'anoitecer'],  # Labels únicos
+                    include_lowest=True)
             
             # Features cíclicas para hora
             df['hour_sin'] = np.sin(2 * np.pi * df['hour'] / 24)
