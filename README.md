@@ -252,7 +252,7 @@ streamlit run src/fase4/dashboard/streamlit_app.py
   - Carregar src\fase4\wokwi\circuit_compatible.json
   - Execute a simulação
 
-Carregar código ESP32 Automatico:
+- Carregar código ESP32 Automatico:
   - Link: https://wokwi.com/projects/434240692467938305
   - Execute a simulação
   
