@@ -74,7 +74,6 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 │   
 ├───.github
 │   └───workflows
-│           ci.yml
 │
 ├───assets
 │   │   logo-fiap.png
