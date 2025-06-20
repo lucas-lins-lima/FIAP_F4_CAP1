@@ -1,0 +1,70 @@
+[
+  {
+    "nome_area": "Fazenda São João - Lote A",
+    "cultura": "Soja",
+    "dimensoes": {
+      "largura": 200,
+      "comprimento": 300
+    },
+    "area": 60000,
+    "insumos": {
+      "nome": "Glifosato",
+      "quantidade": 18.0,
+      "unidade": "L",
+      "area_hectares": 6.0
+    },
+    "timestamp": "2025-06-19T14:47:49.723781",
+    "id": 1
+  },
+  {
+    "nome_area": "Propriedade Rural Esperança",
+    "cultura": "Milho",
+    "dimensoes": {
+      "raio": 150
+    },
+    "area": 70686,
+    "insumos": {
+      "nome": "Ureia",
+      "quantidade": 1413.72,
+      "unidade": "kg",
+      "area_hectares": 7.0686
+    },
+    "timestamp": "2025-06-19T14:47:49.723781",
+    "id": 2
+  },
+  {
+    "nome_area": "Cafezal Monte Verde",
+    "cultura": "Café",
+    "dimensoes": {
+      "base_maior": 250,
+      "base_menor": 180,
+      "altura": 200
+    },
+    "area": 43000,
+    "insumos": {
+      "nome": "Fosfato",
+      "quantidade": 645.0,
+      "unidade": "kg",
+      "area_hectares": 4.3
+    },
+    "timestamp": "2025-06-19T14:47:49.723781",
+    "id": 3
+  },
+  {
+    "nome_area": "Usina Doce Vida - Setor B",
+    "cultura": "Cana-de-açúcar",
+    "dimensoes": {
+      "base": 400,
+      "altura": 300
+    },
+    "area": 60000,
+    "insumos": {
+      "nome": "NPK Líquido",
+      "quantidade": 30000.0,
+      "unidade": "mL",
+      "area_hectares": 6.0
+    },
+    "timestamp": "2025-06-19T14:47:49.723781",
+    "id": 4
+  }
+]

@@ -1,0 +1,5 @@
+id,nome_area,cultura,area,insumo_nome,insumo_quantidade,insumo_unidade,timestamp
+1,Fazenda São João - Lote A,Soja,60000,Glifosato,18.0,L,2025-06-19T14:47:49.723781
+2,Propriedade Rural Esperança,Milho,70686,Ureia,1413.72,kg,2025-06-19T14:47:49.723781
+3,Cafezal Monte Verde,Café,43000,Fosfato,645.0,kg,2025-06-19T14:47:49.723781
+4,Usina Doce Vida - Setor B,Cana-de-açúcar,60000,NPK Líquido,30000.0,mL,2025-06-19T14:47:49.723781

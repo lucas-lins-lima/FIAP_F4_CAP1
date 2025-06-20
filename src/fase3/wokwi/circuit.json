@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "author": "FarmTech Solutions",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp32",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht22",
+      "top": -67.2,
+      "left": 174.4,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr1",
+      "top": -124.8,
+      "left": 96,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn-fosforo",
+      "top": -163.2,
+      "left": 374.4,
+      "attrs": {
+        "color": "green",
+        "label": "FÓSFORO"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton",
+      "id": "btn-potassio",
+      "top": -105.6,
+      "left": 374.4,
+      "attrs": {
+        "color": "blue",
+        "label": "POTÁSSIO"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "relay1",
+      "top": 96,
+      "left": 326.4,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led-system",
+      "top": -48,
+      "left": 460.8,
+      "attrs": {
+        "color": "red"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": -28.8,
+      "left": 422.4,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": -86.4,
+      "left": 86.4,
+      "attrs": {
+        "value": "10000"
+      }
+    }
+  ],
+  "connections": [
+    [ "esp32:TX0", "$serialMonitor:RX", "", [] ],
+    [ "esp32:RX0", "$serialMonitor:TX", "", [] ],
+    [ "esp32:GND.1", "dht22:GND", "black", [ "h0" ] ],
+    [ "esp32:3V3", "dht22:VCC", "red", [ "h0" ] ],
+    [ "esp32:D4", "dht22:SDA", "green", [ "h0" ] ],
+    [ "esp32:GND.2", "ldr1:GND", "black", [ "h0" ] ],
+    [ "esp32:3V3", "ldr1:VCC", "red", [ "h0" ] ],
+    [ "esp32:A0", "ldr1:AO", "yellow", [ "h0" ] ],
+    [ "esp32:D18", "btn-fosforo:1.l", "green", [ "h0" ] ],
+    [ "esp32:GND.1", "btn-fosforo:2.l", "black", [ "h0" ] ],
+    [ "esp32:D19", "btn-potassio:1.l", "blue", [ "h0" ] ],
+    [ "esp32:GND.2", "btn-potassio:2.l", "black", [ "h0" ] ],
+    [ "esp32:D2", "relay1:IN", "orange", [ "h0" ] ],
+    [ "esp32:3V3", "relay1:VCC", "red", [ "h0" ] ],
+    [ "esp32:GND.1", "relay1:GND", "black", [ "h0" ] ],
+    [ "esp32:D23", "r1:1", "purple", [ "h0" ] ],
+    [ "r1:2", "led-system:A", "purple", [ "h0" ] ],
+    [ "led-system:C", "esp32:GND.2", "black", [ "h0" ] ],
+    [ "ldr1:AO", "r2:1", "yellow", [ "h0" ] ],
+    [ "r2:2", "esp32:GND.1", "black", [ "h0" ] ]
+  ],
+  "dependencies": {}
+}
