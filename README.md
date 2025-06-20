@@ -246,8 +246,35 @@ python scripts/deployment/setup.py
 2. Configuração Manual
 - Configurar .env
 ```
-OPENWEATHER_API_KEY=sua_chave_aqui
+# FarmTech Solutions - Configurações de Ambiente
+
+# Banco de Dados
 DB_PATH=data/farmtech_production.db
+DB_BACKUP_PATH=backups/
+DB_RETENTION_DAYS=90
+
+# Sensores
+SENSOR_HUMIDITY_MIN=30.0
+SENSOR_HUMIDITY_MAX=70.0
+SENSOR_PH_MIN=6.0
+SENSOR_PH_MAX=7.5
+SENSOR_READING_INTERVAL=300
+
+# API Externa (OpenWeatherMap)
+OPENWEATHER_API_KEY=YOUR_API_KEY_HERE
+OPENWEATHER_CITY=São Paulo
+OPENWEATHER_COUNTRY=BR
+
+# Machine Learning
+ML_MODEL_PATH=models/farmtech_irrigation_model.pkl
+ML_RETRAIN_DAYS=7
+ML_CONFIDENCE_THRESHOLD=0.7
+
+# Sistema
+ENVIRONMENT=production
+DEBUG=False
+LOG_LEVEL=INFO
+LOG_FILE=logs/farmtech.log
 ```
 - Executar Dashboard
 ```
