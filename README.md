@@ -195,7 +195,7 @@ bash
 pip install -r scripts/deployment/requirements.txt
 ```
 # Bibliotecas específicas
-pip install sqlite3 pandas matplotlib seaborn pyserial numpy
+pip install numpy pandas scikit-learn joblib streamlit plotly matplotlib seaborn requests pytest black flake8 python-dotenv schedule
 
 ### Fase 1 - Sistema Python
 ```
