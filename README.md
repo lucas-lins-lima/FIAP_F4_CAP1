@@ -45,7 +45,9 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 
 ### **FASE 3** ✅ - Sistema IoT com ESP32
 - ✅ Simulação Wokwi
+
 ![Captura de tela 2025-06-19 212738](https://github.com/user-attachments/assets/d45f801d-e331-4718-bc21-03de060a751e)
+
 - ✅ Sensores integrados
 - ✅ Controle de irrigação
 - ✅ Banco de dados com CRUD
@@ -54,6 +56,9 @@ A **FarmTech Solutions** é uma startup inovadora focada em soluções tecnológ
 - ✅ Integração Scikit-learn
 - ✅ Dashboard Streamlit
 - ✅ Otimizações ESP32
+
+![Captura de tela 2025-06-19 224438](https://github.com/user-attachments/assets/2d4d22fe-8530-41e4-af2a-1605c85b9f0a)
+
 - ✅ Sistema preditivo
 
 ## 🌱 Culturas Suportadas
