@@ -65,6 +65,8 @@ Link do documento completo 1: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/bl
 
 Link do documento completo 2: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/blob/main/src/fase4/esp32_optimized/memory_optimization.md
 
+Link do video do Youtube:
+
 ## 🌱 Culturas Suportadas
 
 | Cultura | Geometria | Insumo Principal | Dosagem |
@@ -262,11 +264,13 @@ py -m streamlit run src/fase4/dashboard/streamlit_app.py
   
 ## 🗃 Histórico de lançamentos
 
-* 0.2.0 - 18/06/2025
+* 0.3.0 - 18/06/2025
     * Atualização das fases 1 e 2
-* 0.1.0 - 19/06/2025
+* 0.2.0 - 19/06/2025
     * Atualização da fase 3
     * Conclussão da fase 4
+* 0.1.0 - 20/06/2025
+    * Conclusão da atividade 4
 
 ## 📋 Licença
 
