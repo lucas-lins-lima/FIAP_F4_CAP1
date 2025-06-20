@@ -65,7 +65,7 @@ Link do documento completo 1: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/bl
 
 Link do documento completo 2: https://github.com/lucas-lins-lima/FIAP_F4_CAP1/blob/main/src/fase4/esp32_optimized/memory_optimization.md
 
-Link do video do Youtube:
+Link do video do Youtube: https://youtu.be/_vRdajyxBo8
 
 ## 🌱 Culturas Suportadas
 
