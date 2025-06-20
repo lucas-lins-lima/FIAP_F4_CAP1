@@ -1,2 +1,11 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Force LF for specific files
+*.py text eol=lf
+*.cpp text eol=lf
+*.h text eol=lf
+*.md text eol=lf
+*.sql text eol=lf
+*.R text eol=lf
+*.json text eol=lf
