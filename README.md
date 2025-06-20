@@ -84,6 +84,7 @@ Link do video do Youtube: https://youtu.be/_vRdajyxBo8
 │   
 ├───.github
 │   └───workflows
+│           ci.yml
 │
 ├───assets
 │   │   logo-fiap.png
@@ -93,19 +94,23 @@ Link do video do Youtube: https://youtu.be/_vRdajyxBo8
 │       ├───dashboard-screenshots
 │       ├───serial-plotter
 │       └───system-demo
+├───backups
 ├───config
 │       database.py
 │       readme.md
 │       settings.py
 │
+├───data
 ├───document
-│   │   fase1-requirements.md
-│   │   fase2-database-design.md
 │   │   fase3-hardware-system.md
 │   │   fase4-ml-dashboard.md
 │   │
 │   └───other
 │           readme.md
+│
+├───logs
+├───models
+│       farmtech_irrigation_model.pkl
 │
 ├───scripts
 │   ├───database
@@ -140,14 +145,19 @@ Link do video do Youtube: https://youtu.be/_vRdajyxBo8
     │   │       sensors.h
     │   │
     │   ├───python
-    │   │       crud_operations.py
-    │   │       database_manager.py
-    │   │       data_analysis.py
+    │   │   │   crud_operations.py
+    │   │   │   database_manager.py
+    │   │   │   data_analysis.py
+    │   │   │   
+    │   │   └───__pycache__
+    │   │           database_manager.cpython-311.pyc
     │   │
     │   └───wokwi
     │           circuit.json
     │
     └───fase4
+        │   train_ml_model.py
+        │
         ├───dashboard
         │   │   streamlit_app.py
         │   │
@@ -159,13 +169,21 @@ Link do video do Youtube: https://youtu.be/_vRdajyxBo8
         │       memory_optimization.md
         │
         ├───integration
-        │       api_connections.py
-        │       database_enhanced.py
+        │   │   api_connections.py
+        │   │   database_enhanced.py
+        │   │
+        │   └───__pycache__
+        │           database_enhanced.cpython-311.pyc
         │
         ├───machine_learning
-        │       data_preprocessing.py
-        │       irrigation_predictor.py
-        │       model_training.py
+        │   │   data_preprocessing.py
+        │   │   irrigation_predictor.py
+        │   │   model_training.py
+        │   │
+        │   └───__pycache__
+        │           data_preprocessing.cpython-311.pyc
+        │           irrigation_predictor.cpython-311.pyc
+        │           model_training.cpython-311.pyc
         │
         └───wokwi
                 circuit_compatible.json
